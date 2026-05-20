@@ -32,5 +32,8 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Vercel
+.vercel/
+
 # Uploads temporales
 /tmp/uploads/

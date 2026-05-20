@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import settings
 from app.database import Base, engine
 from app.routers import evaluations
 
@@ -34,9 +35,10 @@ def _setup_logging() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _setup_logging()
-    # Crear tablas en desarrollo; en prod Alembic las gestiona
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # create_all solo en desarrollo — en producción Alembic gestiona el schema
+    if settings.ENVIRONMENT == "development":
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
     yield
     await engine.dispose()
 
