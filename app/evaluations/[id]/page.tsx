@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import ScoreBar from "@/components/ScoreBar";
 import StatusBadge from "@/components/StatusBadge";
 import { deleteEvaluation, getEvaluation } from "@/lib/api";
+import { formatDateLong } from "@/lib/format";
 import { EvaluationDetail } from "@/types";
 
 function scoreColor(score: number | null): string {
@@ -13,16 +14,6 @@ function scoreColor(score: number | null): string {
   if (score >= 8) return "#22FF44";
   if (score >= 5) return "#FFB800";
   return "#FF4444";
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString("es-CO", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 export default function EvaluationDetailPage() {
@@ -109,7 +100,7 @@ export default function EvaluationDetailPage() {
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
             <StatusBadge status={evaluation.status} />
             <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>
-              {formatDate(evaluation.created_at)}
+              {formatDateLong(evaluation.created_at)}
             </span>
           </div>
         </div>
