@@ -5,6 +5,11 @@ import { uploadAudio } from "@/lib/api";
 import { EvaluationDetail } from "@/types";
 
 const ACCEPTED = ".mp3,.wav,.m4a,.webm";
+// En Vercel (NEXT_PUBLIC_API_URL vacío) el proxy corta a 4.5 MB antes de llegar al backend.
+// En local el request va directo a FastAPI — el límite real es el del backend (25 MB).
+const MAX_SIZE_MB = process.env.NEXT_PUBLIC_API_URL ? 25 : 4.5;
+// WAV es PCM sin comprimir — falla primero y más seguido en Vercel
+const UNCOMPRESSED_FORMATS = new Set(["wav"]);
 
 interface AudioUploadProps {
   onSuccess: (evaluation: EvaluationDetail) => void;
@@ -20,6 +25,19 @@ export default function AudioUpload({ onSuccess }: AudioUploadProps) {
   async function handleUpload(file: File) {
     setSelectedFile(file);
     setError(null);
+
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+    const sizeMB = file.size / (1024 * 1024);
+    if (sizeMB > MAX_SIZE_MB) {
+      const compressionHint = UNCOMPRESSED_FORMATS.has(ext)
+        ? ` WAV es audio sin comprimir — convertilo a MP3 o M4A para reducir el tamaño.`
+        : ` Intentá comprimir el archivo antes de subirlo.`;
+      setError(
+        `El archivo (${sizeMB.toFixed(1)} MB) supera el límite de ${MAX_SIZE_MB} MB del servidor.${compressionHint}`
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       const result = await uploadAudio(file);
@@ -101,7 +119,7 @@ export default function AudioUpload({ onSuccess }: AudioUploadProps) {
               o haz clic para seleccionar
             </p>
             <p style={{ color: "var(--text-muted)", fontSize: "11px" }}>
-              MP3, WAV, M4A, WEBM · Máx. 25 MB
+              MP3, WAV, M4A, WEBM · Máx. {MAX_SIZE_MB} MB
             </p>
           </>
         )}
