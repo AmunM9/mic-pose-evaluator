@@ -1,8 +1,5 @@
 import logging
-import os
 import time
-import uuid
-from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from sqlalchemy import select
@@ -21,12 +18,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/evaluations", tags=["evaluations"])
 
 ALLOWED_EXTENSIONS = {".mp3", ".wav", ".m4a", ".webm"}
-UPLOAD_DIR = Path("/tmp/uploads")
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _validate_audio_file(file: UploadFile) -> None:
-    ext = Path(file.filename or "").suffix.lower()
+    name = file.filename or ""
+    ext = ("." + name.rsplit(".", 1)[-1]).lower() if "." in name else ""
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=422,
@@ -67,12 +63,10 @@ async def upload_audio(file: UploadFile, db: AsyncSession = Depends(get_db)):
             detail=f"El archivo supera el límite de {settings.MAX_AUDIO_SIZE_MB}MB",
         )
 
-    safe_name = f"{uuid.uuid4()}{Path(file.filename or 'audio').suffix.lower()}"
-    file_path = UPLOAD_DIR / safe_name
-    file_path.write_bytes(content)
+    filename = file.filename or "audio.mp3"
 
     evaluation = Evaluation(
-        filename=file.filename or safe_name,
+        filename=filename,
         file_size_bytes=size_bytes,
         status="processing",
     )
@@ -82,7 +76,7 @@ async def upload_audio(file: UploadFile, db: AsyncSession = Depends(get_db)):
     start = time.monotonic()
 
     try:
-        transcript, speaker_count = await transcribe_audio(str(file_path))
+        transcript, speaker_count = await transcribe_audio(filename, content)
         evaluation.transcript = transcript
         evaluation.speaker_count = speaker_count
 
@@ -110,9 +104,6 @@ async def upload_audio(file: UploadFile, db: AsyncSession = Depends(get_db)):
         logger.error("evaluation_failed", extra={"evaluation_id": eval_id, "error": str(exc)})
         await db.commit()
         raise HTTPException(status_code=500, detail=f"Error procesando audio: {exc}") from exc
-    finally:
-        if file_path.exists():
-            os.remove(file_path)
 
     await db.commit()
 

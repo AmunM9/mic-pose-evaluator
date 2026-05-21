@@ -1,3 +1,4 @@
+import io
 import json
 
 import openai
@@ -30,19 +31,18 @@ Devuelve exactamente este JSON:
 }}"""
 
 
-async def transcribe_audio(file_path: str) -> tuple[str, int]:
+async def transcribe_audio(filename: str, content: bytes) -> tuple[str, int]:
     """Retorna (transcript_formateado, numero_de_speakers).
 
     Paso 1 — whisper-1 convierte el audio a texto continuo.
     Paso 2 — gpt-4o-mini detecta roles (VENDEDOR/CLIENTE) y formatea como diálogo.
     Formato de salida: "VENDEDOR: texto\\nCLIENTE: texto\\n..."
     """
-    with open(file_path, "rb") as audio_file:
-        transcription = await _client.audio.transcriptions.create(
-            model="whisper-1",
-            file=audio_file,
-            language="es",
-        )
+    transcription = await _client.audio.transcriptions.create(
+        model="whisper-1",
+        file=(filename, io.BytesIO(content)),
+        language="es",
+    )
     return await _diarize(transcription.text)
 
 

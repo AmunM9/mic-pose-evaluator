@@ -7,6 +7,9 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, options);
   if (!res.ok) {
+    if (res.status === 504) {
+      throw new Error("El procesamiento tardó demasiado (timeout). Intentá de nuevo o usá un archivo más corto.");
+    }
     const body = await res.json().catch(() => ({}));
     throw new Error(body.detail ?? `HTTP ${res.status}`);
   }
