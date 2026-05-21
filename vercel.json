@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "outputDirectory": ".next",
   "functions": {
     "api/index.py": {
       "maxDuration": 60
