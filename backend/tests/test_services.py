@@ -5,11 +5,8 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_transcribe_audio_mock(tmp_path):
+async def test_transcribe_audio_mock():
     from app.services.transcription import transcribe_audio
-
-    audio_file = tmp_path / "test.mp3"
-    audio_file.write_bytes(b"fake audio")
 
     # Mock respuesta de Whisper
     mock_whisper = MagicMock()
@@ -31,7 +28,7 @@ async def test_transcribe_audio_mock(tmp_path):
     mock_client.chat.completions.create = AsyncMock(return_value=mock_diarize_response)
 
     with patch("app.services.transcription._client", mock_client):
-        transcript, speaker_count = await transcribe_audio(str(audio_file))
+        transcript, speaker_count = await transcribe_audio("test.mp3", b"fake audio")
 
     assert transcript == "VENDEDOR: Hola, soy el vendedor."
     assert speaker_count == 1
