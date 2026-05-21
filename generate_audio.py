@@ -16,7 +16,7 @@ client = ElevenLabs(api_key=os.environ["ELEVENLABS_API_KEY"])
 # Voces de la librería pública de ElevenLabs (español colombiano)
 # Puedes cambiar estos IDs por cualquier voz de tu biblioteca
 # Búscalas en: https://elevenlabs.io/app/voice-library
-VENDEDOR_VOICE_ID = "pqHfZKP75CvOlQylNhV4"  # Bill - voz masculina neutra
+VENDEDOR_VOICE_ID = "cgSgspJ2msm6clMCkdW9"  # Bill - voz masculina neutra
 CLIENTE_VOICE_ID  = "onwK4e9ZLuTAKqWW03F9"  # Daniel - voz masculina diferente
 
 # ─── Libreto 1: MAL VENDEDOR ─────────────────────────────────────────────────

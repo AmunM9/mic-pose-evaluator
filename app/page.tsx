@@ -108,7 +108,7 @@ export default function HomePage() {
                 lineHeight: "1.7",
               }}
             >
-              Sube una grabación de una conversación de venta. El sistema la transcribirá con
+              Sube una grabación de una conversación de venta entre 2 personas. El sistema la transcribirá con
               Whisper y evaluará 5 criterios comerciales usando GPT-4o-mini.
             </p>
           </div>
