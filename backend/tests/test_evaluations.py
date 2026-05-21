@@ -4,6 +4,8 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 MOCK_TRANSCRIPT = "Hola, soy Juan de Mic&Pose. ¿En qué le puedo ayudar hoy?"
+# transcribe_audio ahora retorna tuple[str, int]
+MOCK_TRANSCRIBE_RETURN = (MOCK_TRANSCRIPT, 2)
 MOCK_RESULTS = [
     {
         "criterion_id": i,
@@ -19,7 +21,7 @@ MOCK_RESULTS = [
 @pytest.mark.asyncio
 async def test_upload_audio_success(client):
     with (
-        patch("app.routers.evaluations.transcribe_audio", new=AsyncMock(return_value=MOCK_TRANSCRIPT)),
+        patch("app.routers.evaluations.transcribe_audio", new=AsyncMock(return_value=MOCK_TRANSCRIBE_RETURN)),
         patch("app.routers.evaluations.evaluate_transcript", new=AsyncMock(return_value=MOCK_RESULTS)),
     ):
         audio_bytes = io.BytesIO(b"fake audio content")
@@ -55,7 +57,7 @@ async def test_get_evaluations_empty(client):
 @pytest.mark.asyncio
 async def test_get_evaluation_detail(client):
     with (
-        patch("app.routers.evaluations.transcribe_audio", new=AsyncMock(return_value=MOCK_TRANSCRIPT)),
+        patch("app.routers.evaluations.transcribe_audio", new=AsyncMock(return_value=MOCK_TRANSCRIBE_RETURN)),
         patch("app.routers.evaluations.evaluate_transcript", new=AsyncMock(return_value=MOCK_RESULTS)),
     ):
         upload = await client.post(
@@ -80,7 +82,7 @@ async def test_get_evaluation_not_found(client):
 @pytest.mark.asyncio
 async def test_delete_evaluation(client):
     with (
-        patch("app.routers.evaluations.transcribe_audio", new=AsyncMock(return_value=MOCK_TRANSCRIPT)),
+        patch("app.routers.evaluations.transcribe_audio", new=AsyncMock(return_value=MOCK_TRANSCRIBE_RETURN)),
         patch("app.routers.evaluations.evaluate_transcript", new=AsyncMock(return_value=MOCK_RESULTS)),
     ):
         upload = await client.post(
