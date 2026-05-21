@@ -37,3 +37,4 @@ Thumbs.db
 
 # Uploads temporales
 /tmp/uploads/
+.vercel

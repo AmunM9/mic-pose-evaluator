@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str
     ENVIRONMENT: str = "development"
     MAX_AUDIO_SIZE_MB: int = 25
+    CORS_ORIGINS: str = "http://localhost:3000"
 
 
 settings = Settings()
