@@ -73,6 +73,8 @@ jobs:
         with:
           node-version: "20"
 
+      - uses: astral-sh/setup-uv@v5
+
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
 
